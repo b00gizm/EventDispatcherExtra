@@ -1,0 +1,10 @@
+{
+    "require": {
+        "symfony/event-dispatcher": ">=2.1.x-dev",
+        "videlalvaro/php-amqplib": "*"
+    },
+
+    "autoload": {
+        "psr-0": {"CodeNugget": "src/"}
+    }
+}
