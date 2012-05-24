@@ -1,9 +1,9 @@
 <?php
 
-namespace CodeNugget\EventDispatcherExtra;
+namespace CodeNugget\EventDispatcherExtra\Amqp;
 
-use Symfony\Component\Event,
-    Symfony\Component\EventDispatcher;
+use Symfony\Component\EventDispatcher\Event,
+    Symfony\Component\EventDispatcher\EventDispatcher;
 
 use PhpAmqpLib\Message\AMQPMessage,
     PhpAmqpLib\Connection\AMQPConnection;
@@ -46,6 +46,8 @@ class AmqpAwareEventDispatcher extends EventDispatcher
 
                 return;
             }
+
+            $this->publishEvent($event);
         }
     }
 

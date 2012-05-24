@@ -1,6 +1,6 @@
 <?php
 
-namespace CodeNugget\EventDispatcherExtra;
+namespace CodeNugget\EventDispatcherExtra\Amqp;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 
@@ -27,6 +27,13 @@ class QueueEvent extends GenericEvent
         );
 
         $arguments = array_replace_recursive($defaults, $arguments);
+        if (!$this->checkExchangeType($arguments['exchange']['type'])) {
+            throw new \InvalidArgumentException(sprintf(
+                "Error: '%s' is not a valid type.",
+                $arguments['exchange']['type']
+            ));
+        }
+
         parent::__construct($subject, $arguments);
     }
 
@@ -42,12 +49,10 @@ class QueueEvent extends GenericEvent
 
     public function setExchangeType($type)
     {
-        $types = array('direct', 'fanout', 'topic');
-        if (!in_array($type, $types)) {
+        if (!$this->checkExchangeType($type)) {
             throw new \InvalidArgumentException(sprintf(
-                "Error: '%s' is not a valid type. (Available types: %s)",
-                $type,
-                implode(', ', $types)
+                "Error: '%s' is not a valid type.",
+                $type
             ));
         }
         $this->arguments['exchange']['type'] = $type;
@@ -66,5 +71,10 @@ class QueueEvent extends GenericEvent
     public function getQueueName()
     {
         return $this->arguments['queue']['name'];
+    }
+
+    protected function checkExchangeType($type)
+    {
+        return in_array($type, array('direct', 'fanout', 'topic'));
     }
 }
