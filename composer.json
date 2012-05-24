@@ -1,4 +1,18 @@
 {
+    "name":        "codenugget/event-dispatcher-extra",
+    "description": "Additional tweaks to Symfony's EventDispatcher component",
+    "keywords":    ["symfony", "event-dispatcher", "amqp", "rabbitmq"],
+    "type":        "library",
+    "license":     "MIT",
+
+    "authors": [
+        {
+            "name":     "Pascal Cremer",
+            "email":    "b00gizm@gmail.com",
+            "homepage": "http://codenugget.org"
+        }
+    ],
+
     "require": {
         "symfony/event-dispatcher": ">=2.1.x-dev",
         "videlalvaro/php-amqplib": "*"
