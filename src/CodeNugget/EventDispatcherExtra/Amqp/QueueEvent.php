@@ -11,7 +11,7 @@ class QueueEvent extends GenericEvent
         $defaults = array(
             'exchange' => array(
                 'name'        => null,
-                'type'        => 'direct',
+                'type'        => null,
                 'passive'     => false,
                 'exclusive'   => false,
                 'durable'     => false,
@@ -27,14 +27,13 @@ class QueueEvent extends GenericEvent
         );
 
         $arguments = array_replace_recursive($defaults, $arguments);
-        if (!$this->checkExchangeType($arguments['exchange']['type'])) {
-            throw new \InvalidArgumentException(sprintf(
-                "Error: '%s' is not a valid type.",
-                $arguments['exchange']['type']
-            ));
-        }
-
         parent::__construct($subject, $arguments);
+
+        // Make sure the exchange is set up properly
+        // (Not quite happy with this yet)
+        if (null !== $arguments['exchange']['type']) {
+            $this->setExchangeType($arguments['exchange']['type']);
+        }
     }
 
     public function setExchangeName($name)
@@ -49,13 +48,15 @@ class QueueEvent extends GenericEvent
 
     public function setExchangeType($type)
     {
-        if (!$this->checkExchangeType($type)) {
+        $res = $this->ensureExchange($type);
+        if (false === $res) {
             throw new \InvalidArgumentException(sprintf(
                 "Error: '%s' is not a valid type.",
                 $type
             ));
         }
         $this->arguments['exchange']['type'] = $type;
+        $this->setExchangeName($res);
     }
 
     public function getExchangeType()
@@ -73,8 +74,12 @@ class QueueEvent extends GenericEvent
         return $this->arguments['queue']['name'];
     }
 
-    protected function checkExchangeType($type)
+    protected function ensureExchange($type)
     {
-        return in_array($type, array('direct', 'fanout', 'topic'));
+        if (in_array($type, array('direct', 'fanout', 'topic'))) {
+            return $this->getExchangeName() ?: 'amq.'.$type;
+        }
+
+        return false;
     }
 }

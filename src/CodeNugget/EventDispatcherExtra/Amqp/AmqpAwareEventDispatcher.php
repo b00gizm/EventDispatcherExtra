@@ -36,32 +36,21 @@ class AmqpAwareEventDispatcher extends EventDispatcher
 
         if ($event instanceof QueueEvent && !$event->isPropagationStopped()) {
             $event['routing_key'] = $eventName;
-            if (null !== $publisher) {
-                if (!is_callable($publisher)) {
-                    throw new \InvalidArgumentException(
-                        "'publisher' show be either null or a valid callable"
-                    );
-                }
-                call_user_func($publisher, $event, $this->conn);
-
-                return;
+            if (null === $publisher) {
+                $publisher = array($this, 'publishEvent');
             }
-
-            $this->publishEvent($event);
+            if (!is_callable($publisher)) {
+                throw new \InvalidArgumentException(
+                    "The third parameter should either be null or a valid PHP callable"
+                );
+            }
+            call_user_func($publisher, $event, $this->conn);
         }
     }
 
-    protected function publishEvent(QueueEvent $event)
+    protected function publishEvent(QueueEvent $event, AMQPConnection $conn)
     {
-        $channel = $this->conn->channel();
-
-        $channel->exchange_declare(
-            $event->getExchangeName(),
-            $event->getExchangeType(),
-            $event['exchange']['passive'],
-            $event['exchange']['durable'],
-            $event['exchange']['auto_delete']
-        );
+        $channel = $conn->channel();
 
         $channel->queue_declare(
             $event->getQueueName(),
@@ -71,7 +60,22 @@ class AmqpAwareEventDispatcher extends EventDispatcher
             $event['exchange']['auto_delete']
         );
 
-        $channel->queue_bind($event->getQueueName(), $event->getExchangeName());
+        if (null !== $event->getExchangeName()) {
+            // Thou shall not redeclare the default exchanges!
+            if (!preg_match('/^amq\./', $event->getExchangeName())) {
+                    $channel->exchange_declare(
+                    $event->getExchangeName(),
+                    $event->getExchangeType(),
+                    $event['exchange']['passive'],
+                    $event['exchange']['durable'],
+                    $event['exchange']['auto_delete']
+                );
+            }
+            $channel->queue_bind(
+                $event->getQueueName(),
+                $event->getExchangeName()
+            );
+        }
 
         $body = null;
         $contentType = "text/plain";
@@ -86,7 +90,7 @@ class AmqpAwareEventDispatcher extends EventDispatcher
                 if ($reflectionClass->hasMethod($method)) {
                     $body = json_encode(call_user_func(array($subject, $method)));
                     $contentType = 'application/json';
-                    continue;
+                    break;
                 }
                 $body = serialize($subject);
             } 
@@ -98,6 +102,7 @@ class AmqpAwareEventDispatcher extends EventDispatcher
             'content_type'    => $contentType,
             'delivery_method' => 2,
         ));
+
         $channel->basic_publish($message, $event->getExchangeName(), $event['routing_key']);
         $channel->close();
     }

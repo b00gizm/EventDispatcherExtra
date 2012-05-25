@@ -59,6 +59,7 @@ class QueueEventTest extends \PHPUnit_Framework_TestCase
         $this->evt->setExchangeType('fanout');
 
         $this->assertEquals('fanout', $this->evt['exchange']['type']);
+        $this->assertEquals('amq.fanout', $this->evt['exchange']['name']);
     }
 
     /**
