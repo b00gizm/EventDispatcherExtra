@@ -1,6 +1,6 @@
 # EventDispatcherExtra
 
-This package provides some useful additions and tweaks to the Symfony's [EventDispatcher component](http://symfony.com/doc/current/components/event_dispatcher/introduction.html).
+This package provides some useful additions and tweaks to Symfony's [EventDispatcher component](http://symfony.com/doc/current/components/event_dispatcher/introduction.html).
 
 ## Install
 
@@ -15,7 +15,7 @@ php composer.phar update
 
 The `AmqpAwareEventDispatcher` class inherits from the standard `EventDispatcher` class and adds a thin layer for dispatching events to your [RabbitMQ](http://www.rabbitmq.com/) or any other messaging system based on the [AMQP](http://www.amqp.org/) standard.
 
-If you fire an event of type `QueueEvent` the `AmqpAwareEventDispatcher` will dipatch it to your message queue after all other regular listeners have been processed. Any other event (which don't inherit from `QueueEvent`) won't be dispatched the message queue, so it's fully compatible to the standard event dispatcher. 
+If you fire an event of type `QueueEvent` the `AmqpAwareEventDispatcher` will dipatch it to your message queue after all other regular listeners have been processed. Any other event (which does not inherit from `QueueEvent`) won't be dispatched the message queue, so it's fully compatible to the standard event dispatcher. 
 
 ### Usage examples
 
