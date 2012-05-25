@@ -94,12 +94,11 @@ class AmqpAwareEventDispatcher extends EventDispatcher
             $body = strval($subject);
         }
 
-        $routingKey = $event->getExchangeType() == 'direct' ? '' : $event['routing_key'];
         $message = new AMQPMessage($body, array(
             'content_type'    => $contentType,
             'delivery_method' => 2,
         ));
-        $channel->basic_publish($message, $event->getExchangeName(), $routingKey);
+        $channel->basic_publish($message, $event->getExchangeName(), $event['routing_key']);
         $channel->close();
     }
 

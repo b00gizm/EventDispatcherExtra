@@ -33,7 +33,7 @@ class AmqpAwareEventDispatcherTest extends \PHPUnit_Framework_TestCase
                 ->with(
                     $this->isInstanceOf('PhpAmqpLib\Message\AMQPMessage'),
                     $this->equalTo(null),
-                    $this->equalTo('')
+                    $this->equalTo('my.test.event')
                 );
 
         $channel->expects($this->once())
