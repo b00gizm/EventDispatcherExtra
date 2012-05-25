@@ -8,10 +8,25 @@ use Symfony\Component\EventDispatcher\Event,
 use PhpAmqpLib\Message\AMQPMessage,
     PhpAmqpLib\Connection\AMQPConnection;
 
+/**
+ * The AmqpAwareEventDispatcher adds the functionality to dispatch events
+ * to an AMQP message queue (like RabbitMQ) after they have been processed
+ * by all connected listeners.
+ *
+ * @author Pascal Cremer <b00gizm@gmail.com>
+ **/
 class AmqpAwareEventDispatcher extends EventDispatcher
 {
+    /**
+     * @var AMQPConnection
+     */
     protected $conn;
 
+    /**
+     * Constructor
+     * 
+     * @param   AMQPConnection  $conn  An AMQP connection
+     */
     public function __construct(AMQPConnection $conn = null)
     {
         if (null === $conn) {
@@ -20,16 +35,13 @@ class AmqpAwareEventDispatcher extends EventDispatcher
         $this->conn = $conn;
     }
 
-    public function setConnection(AMQPConnection $conn)
-    {
-        $this->conn = $conn;
-    }
-
-    public function getConnection()
-    {
-        return $this->conn;
-    }
-
+    /**
+     * Dispatches and event
+     * 
+     * @param   string    $eventName  The event name
+     * @param   Event     $event      An event object
+     * @param   callable  $publisher  A valid PHP callable
+     */
     public function dispatch($eventName, Event $event = null, $publisher = null)
     {
         parent::dispatch($eventName, $event);
@@ -48,6 +60,32 @@ class AmqpAwareEventDispatcher extends EventDispatcher
         }
     }
 
+    /**
+     * Setter connection
+     * 
+     * @param   AMQPConnection  $conn  An AMQP connection
+     */
+    public function setConnection(AMQPConnection $conn)
+    {
+        $this->conn = $conn;
+    }
+
+    /**
+     * Getter connection
+     * 
+     * @return  AMQPConnection  The AMQP connection
+     */
+    public function getConnection()
+    {
+        return $this->conn;
+    }
+
+    /**
+     * Default publisher
+     * 
+     * @param   QueueEvent      $event  A QueueEvent
+     * @param   AMQPConnection  $conn   An AMQP connection
+     */
     protected function publishEvent(QueueEvent $event, AMQPConnection $conn)
     {
         $channel = $conn->channel();
@@ -107,6 +145,9 @@ class AmqpAwareEventDispatcher extends EventDispatcher
         $channel->close();
     }
 
+    /**
+     * Destructor
+     */
     public function __destruct()
     {
         $this->conn->close();
