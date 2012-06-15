@@ -19,6 +19,9 @@
     },
 
     "autoload": {
-        "psr-0": {"CodeNugget": "src/"}
+        "psr-0": {
+            "CodeNugget": "src/",
+            "CodeNugget\\Test": "test/"
+        }
     }
 }

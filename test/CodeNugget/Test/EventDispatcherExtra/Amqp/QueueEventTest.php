@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\CodeNugget\EventDispatcherExtra\Amqp;
+namespace CodeNugget\Test\EventDispatcherExtra\Amqp;
 
 use CodeNugget\EventDispatcherExtra\Amqp\QueueEvent;
 
