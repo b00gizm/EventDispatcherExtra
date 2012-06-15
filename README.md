@@ -1,5 +1,7 @@
 # EventDispatcherExtra
 
+[![Build Status](https://secure.travis-ci.org/b00giZm/EventDispatcherExtra.png)](http://travis-ci.org/b00giZm/EventDispatcherExtra)
+
 This package provides some useful additions and tweaks to Symfony's [EventDispatcher component](http://symfony.com/doc/current/components/event_dispatcher/introduction.html).
 
 ## Install
